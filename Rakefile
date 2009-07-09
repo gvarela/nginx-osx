@@ -5,7 +5,7 @@ begin
   require 'jeweler'
   Jeweler::Tasks.new do |gem|
     gem.name = "nginx-osx"
-    gem.summary = %Q{TODO}
+    gem.summary = 'gem for using nginx in development'
     gem.email = "gvarela@gmail.com"
     gem.homepage = "http://github.com/gvarela/nginx-osx"
     gem.authors = ["Gabe Varela"]

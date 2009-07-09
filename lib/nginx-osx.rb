@@ -1,6 +1,11 @@
+require 'open-uri'
+require 'erb'
+
 class NginxOsx
+  TEMPLATES_DIR = File.join(File.dirname(__FILE__), '../', 'templates')
   
-  def execute(cmd)
+  def initialize(args)
+    cmd = args.is_a?(Array) ? args[0] : args
     if respond_to?(cmd.to_sym)
       self.send(cmd.to_sym) 
     else
@@ -45,10 +50,12 @@ class NginxOsx
   end
 
   def setup
-    require 'open-uri'
-    config = open('http://gist.github.com/raw/15892/b29439a05d44cd6f2d9913f27674752bcc6ea7fc/nginx.conf').read
+    config = ''
+    File.open(File.join(TEMPLATES_DIR, 'nginx.conf.erb')) do |f|
+      config = f.read
+    end
     File.open('/opt/local/etc/nginx/nginx.conf', 'w+') do |f|
-     f.puts config
+     f.puts ERB.new(config).result(binding)
     end
     `mkdir -p /opt/local/conf/vhosts`
     `mkdir -p /opt/local/conf/configs`
@@ -56,10 +63,11 @@ class NginxOsx
   end
 
   def add
-    require 'open-uri'
-    require 'erb'
     port = ENV['PORT'] || '3000'
-    config = open('http://gist.github.com/raw/16312/5baa900cd46b278adf5ee6ba667ae46a7571483a/nginx.vhost.conf').read
+    config = ''
+    File.open(File.join(TEMPLATES_DIR, 'nginx.conf.erb')) do |f|
+      config = f.read
+    end
     filename = Dir.pwd.downcase.gsub(/^\//,'').gsub(/\.|\/|\s/,'-')
     File.open("/opt/local/conf/configs/#{filename}.conf", 'w+') do |f|
      f.puts ERB.new(config).result(binding)
