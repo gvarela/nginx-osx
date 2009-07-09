@@ -6,7 +6,7 @@ class NginxOsx
   
   def initialize(args)
     cmd = args.is_a?(Array) ? args[0] : args
-    if respond_to?(cmd.to_sym)
+    if cmd && respond_to?(cmd.to_sym)
       self.send(cmd.to_sym) 
     else
       help
@@ -15,32 +15,25 @@ class NginxOsx
   
   def help
     usage = <<-'USAGE'
-      nginx-osx [cmd]
-        
-        install
-          - install nginx via macports
-          
-        setup
-          - setup the basic nginx.conf file and the vhost directories
-          
-        add
-          - add the current directory as a vhost
-          
-        run
-          - run the current directory as the default vhost (symlinks in the vhost)
-          
-        start
-          - start nginx
-          
-        stop
-          - stop nginx
-          
-        restart
-          - restart and check the config for errors
-          
-        reload
-          - reload the config and check for errors
-          
+USAGE:
+  nginx-osx [cmd]
+    
+    install
+      - install nginx via macports
+    setup
+      - setup the basic nginx.conf file and the vhost directories
+    add
+      - add the current directory as a vhost
+    run
+      - run the current directory as the default vhost (symlinks in the vhost)
+    start
+      - start nginx
+    stop
+      - stop nginx
+    restart
+      - restart and check the config for errors
+    reload
+      - reload the config and check for errors
     USAGE
     puts usage
   end
