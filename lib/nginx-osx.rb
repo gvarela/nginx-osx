@@ -50,26 +50,24 @@ USAGE:
     File.open('/opt/local/etc/nginx/nginx.conf', 'w+') do |f|
      f.puts ERB.new(config).result(binding)
     end
-    `mkdir -p /opt/local/conf/vhosts`
-    `mkdir -p /opt/local/conf/configs`
+    `mkdir -p /opt/local/etc/nginx/vhosts`
+    `mkdir -p /opt/local/etc/nginx/configs`
     `sudo /opt/local/sbin/nginx -t`
   end
 
   def add
     port = ENV['PORT'] || '3000'
     config = ''
-    File.open(File.join(TEMPLATES_DIR, 'nginx.conf.erb')) do |f|
+    File.open(File.join(TEMPLATES_DIR, 'nginx.vhost.conf.erb')) do |f|
       config = f.read
     end
-    filename = Dir.pwd.downcase.gsub(/^\//,'').gsub(/\.|\/|\s/,'-')
-    File.open("/opt/local/conf/configs/#{filename}.conf", 'w+') do |f|
+    File.open(current_config_path, 'w+') do |f|
      f.puts ERB.new(config).result(binding)
     end
   end
 
   def run
-    filename = Dir.pwd.downcase.gsub(/^\//,'').gsub(/\.|\/|\s/,'-')
-    `sudo ln -fs /opt/local/conf/configs/#{filename}.conf /opt/local/conf/vhosts/current.conf`
+    `sudo ln -fs #{current_config_path} /opt/local/etc/nginx/vhosts/current.conf`
     `sudo /opt/local/sbin/nginx -t`
     `sudo /opt/local/sbin/nginx`
   end
@@ -93,4 +91,22 @@ USAGE:
     pid = `ps ax | grep 'nginx: master' | grep -v grep | awk '{print $1}'`
     `sudo kill -HUP #{pid}` if pid
   end
+  
+  def current_config
+    puts current_config_path
+    exec "cat #{current_config_path}"
+  end
+  
+  def tail_error_log
+    exec "tail -f /var/log/nginx/default.error.log"
+  end
+  
+  private 
+    def current_config_name
+      Dir.pwd.downcase.gsub(/^\//,'').gsub(/\.|\/|\s/,'-')
+    end
+    
+    def current_config_path
+      "/opt/local/etc/nginx/configs/#{current_config_name}.conf"
+    end
 end

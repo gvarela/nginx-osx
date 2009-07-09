@@ -40,7 +40,7 @@ server {
     }
     
     # hack to prevent image 404s from getting to rails
-    if ($uri ~ '(/images|\.ico|\.gif|\.jpg|\.png)') {
+    if ($request_filename ~ '(/images|\.ico|\.gif|\.jpg|\.png)') {
       return 404;
     }
     
