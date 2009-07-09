@@ -1,0 +1,78 @@
+# location of mongrel servers to proxy too
+upstream mongrel {
+  server 127.0.0.1:<%= port || '3000'%>;
+}
+
+server {
+  # port to listen on. Can also be set to an IP:PORT
+  listen 80 default;
+  # set max size for file uploads to 50mb
+  client_max_body_size 150M;
+  # sets the domain[s] that this vhost server requests for
+  # if two apps are on this box remove the ip and setup your hosts file
+  server_name _;
+  # doc root
+  root <%= Dir.pwd %>/public;
+  # vhost specific logs
+  access_log <%= Dir.pwd %>/log/nginx.access.log main;
+  error_log  <%= Dir.pwd %>/log/nginx.error.log notice;
+  
+  
+  location / {
+    
+    index index.html index.htm;
+    # forward the user's IP address to Rails
+    proxy_set_header          X-Real-IP $remote_addr;
+    # needed for HTTPS must add an additional server block to configure it.
+    # see "The Rails Way" page 665 for more info
+    proxy_set_header          X-FORWARD_PROTO https;
+    # Forward information about the client and host 
+    # Otherwise our Rails app wouldn't have access to it
+    proxy_set_header          X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header          Host $http_host;
+    proxy_redirect            false;
+    proxy_max_temp_file_size  0;
+    
+    
+    # if file exists break execution and serve up file for example files in images, javascripts, and stylesheets
+    if (-f $request_filename) {
+      break;
+    }
+    
+    # hack to prevent image 404s from getting to rails
+    if ($uri ~ '(/images|\.ico|\.gif|\.jpg|\.png)') {
+      return 404;
+    }
+    
+    # Rails page caching, if file path plus index.html exists break execution and serve up file
+    if (-f $request_filename/index.html) {
+      rewrite (.*) $1/index.html break;
+    }
+    
+    # Rails page caching, if file.html exists break execution and serve up file
+    if (-f $request_filename.html) {
+      rewrite (.*) $1.html break;
+    }
+    
+    # if file does not exist forward to mongrel
+    if (!-f $request_filename) {
+      proxy_pass http://mongrel;
+      break;
+    }
+    
+    # uncomment below and comment out above to configure the upload progress module 
+    # proxy_pass http://mongrel;
+    # track_uploads proxied 30s;
+
+  }
+  # must be an error so point to error page.
+  error_page 500 502 503 504  /500.html;
+  location = /500.html {
+    root <%= Dir.pwd %>/public;
+  }
+        # uncomment below to configure upload progress module
+        # location ^~ /progress {
+        #   report_uploads proxied; 
+        # }
+  
+}

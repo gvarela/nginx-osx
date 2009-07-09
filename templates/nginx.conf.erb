@@ -1,0 +1,51 @@
+# taken mostly from "The Rails Way" page 663
+
+# user and group to run as
+# user  nginx;
+# number of nginx workers
+worker_processes  2;
+# pid of nginx master process
+pid        /var/run/nginx.pid;
+
+error_log   /var/log/nginx/default.error.log debug;
+#error_log  /var/log/nginx/error.log  notice;
+#error_log  /var/log/nginx/error.log  info;
+
+# number of worker connections. 1024 is a good default
+events {
+    worker_connections  256;
+}
+
+
+http {
+    # pull in mime-types. You can break out your config
+    # into as many include's as you want.
+    include       /opt/local/conf/mime.types;
+    # set a default type for the rare situation that nothing matches.
+    default_type  application/octet-stream;
+    # configure log format
+    log_format  main  '$remote_addr - $remote_user [$time_local] $request '
+                      '"$status" $body_bytes_sent "$http_referer" '
+                      '"$http_user_agent" "$http_x_forwarded_for"';
+
+    # no sendfile on OS X
+    tcp_nopush      on;
+    tcp_nodelay     on;
+
+    #keepalive_timeout  0;
+    keepalive_timeout  65;
+
+    gzip  						on;
+    gzip_http_version 1.0;
+    gzip_comp_level 	2;
+    gzip_proxied 			any;
+
+    gzip_types  			text/plain text/html text/css application/x-javascript text/javascript; 
+
+    # upload_progress proxied 1m;
+
+    access_log  /var/log/nginx/nginx.default.access.log main;
+    error_log   /var/log/nginx/nginx.default.error.log  info; 
+    
+    include vhosts/*.conf; 
+}
