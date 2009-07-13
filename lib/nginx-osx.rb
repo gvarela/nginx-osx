@@ -34,12 +34,16 @@ USAGE:
       - restart and check the config for errors
     reload
       - reload the config and check for errors
+    current_config
+      - show vhost config of current directory
+    tail_error_log
+      - tail the main nginx error log
     USAGE
     puts usage
   end
 
   def install
-  `sudo port install nginx`
+  exec "sudo port install nginx"
   end
 
   def setup
@@ -52,6 +56,8 @@ USAGE:
     end
     `mkdir -p /opt/local/etc/nginx/vhosts`
     `mkdir -p /opt/local/etc/nginx/configs`
+    `mkdir -p /var/log/nginx`
+    `sudo cp /opt/local/etc/nginx/mime.types.example /opt/local/etc/nginx/mime.types`
     `sudo /opt/local/sbin/nginx -t`
   end
 
@@ -69,27 +75,27 @@ USAGE:
   def run
     `sudo ln -fs #{current_config_path} /opt/local/etc/nginx/vhosts/current.conf`
     `sudo /opt/local/sbin/nginx -t`
-    `sudo /opt/local/sbin/nginx`
+    puts `sudo /opt/local/sbin/nginx`
   end
 
   def start
-    `sudo /opt/local/sbin/nginx`
+    puts `sudo /opt/local/sbin/nginx`
   end
 
   def stop
-    `sudo killall nginx`
+    puts `sudo killall nginx`
   end
 
   def restart
     `sudo killall nginx`
     `sudo /opt/local/sbin/nginx -t`
-    `sudo /opt/local/sbin/nginx`
+    puts `sudo /opt/local/sbin/nginx`
   end
 
   def reload
     `sudo /opt/local/sbin/nginx -t`
     pid = `ps ax | grep 'nginx: master' | grep -v grep | awk '{print $1}'`
-    `sudo kill -HUP #{pid}` if pid
+    puts `sudo kill -HUP #{pid}` if pid
   end
   
   def current_config

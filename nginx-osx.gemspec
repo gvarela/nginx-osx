@@ -2,11 +2,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{nginx-osx}
-  s.version = "0.1.1"
+  s.version = "0.1.2"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Gabe Varela"]
-  s.date = %q{2009-07-09}
+  s.date = %q{2009-07-13}
   s.default_executable = %q{nginx-osx}
   s.email = %q{gvarela@gmail.com}
   s.executables = ["nginx-osx"]
