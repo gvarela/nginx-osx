@@ -17,6 +17,14 @@ server {
   access_log <%= Dir.pwd %>/log/nginx.access.log main;
   error_log  <%= Dir.pwd %>/log/nginx.error.log notice;
   
+  # hack to prevent image 404s from getting to rails
+  location /images {
+    if (-f $request_filename) {
+      break;
+    }
+
+    return 404;
+  }
   
   location / {
     
@@ -38,11 +46,6 @@ server {
     if (-f $request_filename) {
       break;
     }
-    
-    # hack to prevent image 404s from getting to rails
-    #if ($request_filename ~ '(/images|\.ico|\.gif|\.jpg|\.png)') {
-    #  return 404;
-    #}
     
     # Rails page caching, if file path plus index.html exists break execution and serve up file
     if (-f $request_filename/index.html) {
