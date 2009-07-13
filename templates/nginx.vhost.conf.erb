@@ -23,6 +23,8 @@ server {
       break;
     }
 
+    # instead of a 404 could rewrite to an fpo image
+    # rewrite ^.*(_thumb|_small)\.(jpg|jpeg|JPG|JPEG) /images/fpo$1.jpg last;
     return 404;
   }
   
