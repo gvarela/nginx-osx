@@ -54,6 +54,9 @@ CMD
     File.open(current_config_path, 'w+') do |f|
       f.puts ERB.new(config).result(binding)
     end
+    if host
+      `ghost add #{host}`
+    end
   end
 
   def run

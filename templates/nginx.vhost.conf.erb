@@ -7,7 +7,7 @@ upstream mongrel {
 
 server {
   # port to listen on. Can also be set to an IP:PORT
-  listen <%= host ? "80" : '80 default' %>;;
+  listen <%= host ? "80" : '80 default' %>;
   # set max size for file uploads to 50mb
   client_max_body_size 150M;
   # sets the domain[s] that this vhost server requests for
@@ -24,6 +24,8 @@ server {
   # vhost specific logs
   access_log <%= Dir.pwd %>/log/nginx.access.log main;
   error_log  <%= Dir.pwd %>/log/nginx.error.log notice;
+
+  <% unless passenger %>
   
   # hack to prevent image 404s from getting to rails
   location /images {
@@ -35,12 +37,12 @@ server {
     # rewrite ^.*(_thumb|_small)\.(jpg|jpeg|JPG|JPEG) /images/fpo$1.jpg last;
     return 404;
   }
-  
+
   location / {
     
     index index.html index.htm;
 
-    <% unless passenger %>
+
     # forward the user's IP address to Rails
     proxy_set_header          X-Real-IP $remote_addr;
     # needed for HTTPS must add an additional server block to configure it.
@@ -52,7 +54,6 @@ server {
     proxy_set_header          Host $http_host;
     proxy_redirect            false;
     proxy_max_temp_file_size  0;
-    <% end %>
     
     
     # if file exists break execution and serve up file for example files in images, javascripts, and stylesheets
@@ -69,7 +70,7 @@ server {
     if (-f $request_filename.html) {
       rewrite (.*) $1.html break;
     }
-    
+
     # if file does not exist forward to mongrel
     if (!-f $request_filename) {
       proxy_pass http://mongrel;
@@ -92,3 +93,5 @@ server {
         # }
   
 }
+
+<% end %>

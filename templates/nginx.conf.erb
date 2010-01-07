@@ -47,7 +47,8 @@ http {
     access_log  /var/log/nginx/nginx.default.access.log main;
     error_log   /var/log/nginx/nginx.default.error.log  info;
 
-    passenger_root <%= `gem which phusion_passenger/application`.split('/lib').first %>;
+    passenger_root /opt/local/lib/passenger;
+    # <%= `passenger-config --root` %>;
     passenger_ruby <%= `which ruby`%>;
     
     include vhosts/*.conf; 
