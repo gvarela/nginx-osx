@@ -7,7 +7,7 @@ upstream mongrel {
 
 server {
   # port to listen on. Can also be set to an IP:PORT
-  listen <%= host ? "80 #{host}" : '80 default' %>;;
+  listen <%= host ? "80" : '80 default' %>;;
   # set max size for file uploads to 50mb
   client_max_body_size 150M;
   # sets the domain[s] that this vhost server requests for
