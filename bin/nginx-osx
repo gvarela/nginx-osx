@@ -5,4 +5,4 @@ trap "INT" do
   exit!
 end
 
-NginxOsx.new(ARGV)
+NginxOsx.new(*ARGV)

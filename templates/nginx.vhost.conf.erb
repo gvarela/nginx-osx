@@ -1,18 +1,26 @@
+<% unless passenger %>
 # location of mongrel servers to proxy too
 upstream mongrel {
   server 127.0.0.1:<%= port || '3000'%>;
 }
+<% end %>
 
 server {
   # port to listen on. Can also be set to an IP:PORT
-  listen 80 default;
+  listen <%= host ? "80 #{host}" : '80 default' %>;;
   # set max size for file uploads to 50mb
   client_max_body_size 150M;
   # sets the domain[s] that this vhost server requests for
   # if two apps are on this box remove the ip and setup your hosts file
-  server_name _;
+  server_name <%= host || '_' %>;
   # doc root
   root <%= Dir.pwd %>/public;
+
+  <% if passenger %>
+  passenger_enabled on;
+  rails_env         development;
+  <% end %>
+
   # vhost specific logs
   access_log <%= Dir.pwd %>/log/nginx.access.log main;
   error_log  <%= Dir.pwd %>/log/nginx.error.log notice;
@@ -31,6 +39,8 @@ server {
   location / {
     
     index index.html index.htm;
+
+    <% unless passenger %>
     # forward the user's IP address to Rails
     proxy_set_header          X-Real-IP $remote_addr;
     # needed for HTTPS must add an additional server block to configure it.
@@ -42,6 +52,7 @@ server {
     proxy_set_header          Host $http_host;
     proxy_redirect            false;
     proxy_max_temp_file_size  0;
+    <% end %>
     
     
     # if file exists break execution and serve up file for example files in images, javascripts, and stylesheets

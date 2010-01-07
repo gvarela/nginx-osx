@@ -1,49 +1,35 @@
 require 'open-uri'
 require 'erb'
+require 'optparse'
 
 class NginxOsx
   TEMPLATES_DIR = File.join(File.dirname(__FILE__), '../', 'templates')
-  
-  def initialize(args)
-    cmd = args.is_a?(Array) ? args[0] : args
+  attr_accessor :port, :passenger, :host
+
+  def initialize(*args)
+    cmd = args.shift
+    parse(args)
     if cmd && respond_to?(cmd.to_sym)
-      self.send(cmd.to_sym) 
+      self.send(cmd.to_sym)
     else
       help
     end
   end
-  
+
   def help
-    usage = <<-'USAGE'
-USAGE:
-  nginx-osx [cmd]
-    
-    install
-      - install nginx via macports
-    setup
-      - setup the basic nginx.conf file and the vhost directories
-    add
-      - add the current directory as a vhost
-    run
-      - run the current directory as the default vhost (symlinks in the vhost)
-    start
-      - start nginx
-    stop
-      - stop nginx
-    restart
-      - restart and check the config for errors
-    reload
-      - reload the config and check for errors
-    current_config
-      - show vhost config of current directory
-    tail_error_log
-      - tail the main nginx error log
-    USAGE
     puts usage
   end
 
   def install
-  exec "sudo port install nginx"
+    exec "sudo port install nginx"
+    if passenger
+      install_passenger
+    end
+  end
+
+  def install_passenger
+    exec "sudo gem install passenger"
+    exec "passenger-install-nginx-module"
   end
 
   def setup
@@ -52,7 +38,7 @@ USAGE:
       config = f.read
     end
     File.open('/opt/local/etc/nginx/nginx.conf', 'w+') do |f|
-     f.puts ERB.new(config).result(binding)
+      f.puts ERB.new(config).result(binding)
     end
     `mkdir -p /opt/local/etc/nginx/vhosts`
     `mkdir -p /opt/local/etc/nginx/configs`
@@ -62,13 +48,12 @@ USAGE:
   end
 
   def add
-    port = ENV['PORT'] || '3000'
     config = ''
     File.open(File.join(TEMPLATES_DIR, 'nginx.vhost.conf.erb')) do |f|
       config = f.read
     end
     File.open(current_config_path, 'w+') do |f|
-     f.puts ERB.new(config).result(binding)
+      f.puts ERB.new(config).result(binding)
     end
   end
 
@@ -97,22 +82,44 @@ USAGE:
     pid = `ps ax | grep 'nginx: master' | grep -v grep | awk '{print $1}'`
     puts `sudo kill -HUP #{pid}` if pid
   end
-  
+
   def current_config
     puts current_config_path
     exec "cat #{current_config_path}"
   end
-  
+
   def tail_error_log
     exec "tail -f /var/log/nginx/default.error.log"
   end
-  
-  private 
-    def current_config_name
-      Dir.pwd.downcase.gsub(/^\//,'').gsub(/\.|\/|\s/,'-')
-    end
-    
-    def current_config_path
-      "/opt/local/etc/nginx/configs/#{current_config_name}.conf"
-    end
+
+  private
+  def current_config_name
+    Dir.pwd.downcase.gsub(/^\//, '').gsub(/\.|\/|\s/, '-')
+  end
+
+  def current_config_path
+    passenger && host ? "/opt/local/etc/nginx/vhosts/#{current_config_path}.conf" : "/opt/local/etc/nginx/configs/#{current_config_name}.conf"
+  end
+
+  def usage
+    File.read(File.join('../', 'HELP'))
+  end
+
+  def parse(args)
+    options = {}
+    OptionParser.new do |opts|
+      opts.banner = usage
+
+      opts.on("-p", "--port PORT", Integer, "Use a specific port (default is 3000)") do |p|
+        self.port = p || 3000
+      end
+      opts.on("-h", "--host HOST",  "Use a hostname instead of default host") do |h|
+        self.host = h
+      end
+      opts.on("--passenger", "Use passenger") do |p|
+        self.passenger = true
+      end
+    end.parse!
+
+  end
 end

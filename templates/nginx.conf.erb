@@ -45,7 +45,10 @@ http {
     # upload_progress proxied 1m;
 
     access_log  /var/log/nginx/nginx.default.access.log main;
-    error_log   /var/log/nginx/nginx.default.error.log  info; 
+    error_log   /var/log/nginx/nginx.default.error.log  info;
+
+    passenger_root <%= `gem which phusion_passenger/application`.split('/lib').first %>;
+    passenger_ruby <%= `which ruby`%>;
     
     include vhosts/*.conf; 
 }

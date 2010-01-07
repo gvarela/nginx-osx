@@ -1,0 +1,25 @@
+USAGE:
+  nginx-osx [cmd]
+
+    install [--passenger]
+      - install nginx via macports
+    install_passenger
+      - install passenger for nginx
+    setup
+      - setup the basic nginx.conf file and the vhost directories
+    add [--passenger, --host Hostname]
+      - add the current directory as a vhost
+    run
+      - run the current directory as the default vhost (symlinks in the vhost)
+    start
+      - start nginx
+    stop
+      - stop nginx
+    restart
+      - restart and check the config for errors
+    reload
+      - reload the config and check for errors
+    current_config
+      - show vhost config of current directory
+    tail_error_log
+      - tail the main nginx error log
