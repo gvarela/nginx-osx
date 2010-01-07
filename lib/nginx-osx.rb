@@ -102,7 +102,7 @@ class NginxOsx
   end
 
   def usage
-    File.read(File.join('../', 'HELP'))
+    File.read(File.join(File.dirname(__FILE__), '../', 'HELP'))
   end
 
   def parse(args)
