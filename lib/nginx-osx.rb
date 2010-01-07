@@ -21,16 +21,23 @@ class NginxOsx
   end
 
   def install
-    exec "sudo port install nginx"
-    if passenger
-      install_passenger
-    end
+#    exec "sudo port selfupdate"
+#    exec "sudo port install nginx"
+#    if passenger
+#      install_passenger
+#    end
+    cmd = <<-CMD;
+git clone git://github.com:crigor/admoolabs-ports.git ports
+cd ports/nginx-0.7.64-passenger-2.2.8
+sudo port -v install
+CMD
+    exec cmd
   end
 
-  def install_passenger
-    exec "sudo gem install passenger"
-    exec "passenger-install-nginx-module"
-  end
+#  def install_passenger
+#    exec "sudo gem install passenger"
+#    exec "sudo passenger-install-nginx-module"
+#  end
 
   def setup
     config = ''
