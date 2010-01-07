@@ -1,6 +1,24 @@
 = nginx-osx
 
-Description goes here.
+Use nginx in development on multiple projects with ease. Supports nginx -> mongrel and nginx -> passenger configurations. Also installs nginx and passenger for you to ease setup.
+
+== Install
+  sudo gem install nginx-osx
+  sudo nginx-osx install
+  sudo nginx-osx setup
+
+== Usage
+In your rails project for passenger to access from project.local:
+  sudo nginx-osx add --passenger --host project.local
+  sudo nginx-osx start
+
+In your rails project for mongrel using just localhost:
+  sudo nginx-osx add
+  nginx-osx make_current
+  nginx-osx start
+
+Help
+  nginx-osx help
 
 == Copyright
 

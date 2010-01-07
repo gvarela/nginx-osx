@@ -59,7 +59,7 @@ CMD
     end
   end
 
-  def run
+  def make_current
     `sudo ln -fs #{current_config_path} /opt/local/etc/nginx/vhosts/current.conf`
     `sudo /opt/local/sbin/nginx -t`
     puts `sudo /opt/local/sbin/nginx`
@@ -100,7 +100,7 @@ CMD
   end
 
   def current_config_path
-    passenger && host ? "/opt/local/etc/nginx/vhosts/#{current_config_name}.conf" : "/opt/local/etc/nginx/configs/#{current_config_name}.conf"
+    host ? "/opt/local/etc/nginx/vhosts/#{current_config_name}.conf" : "/opt/local/etc/nginx/configs/#{current_config_name}.conf"
   end
 
   def usage
