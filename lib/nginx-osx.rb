@@ -86,8 +86,20 @@ CMD
   end
 
   def current_config
-    puts current_config_path
-    exec "cat #{current_config_path}"
+    current_path = current_config_path
+    vhost_path = current_config_path(true)
+
+    path =  if File.exists? current_path
+              current_path
+            elsif File.exists? vhost_path
+               vhost_path
+            end
+    if path
+      puts path
+      exec "cat #{path}"
+    else
+      puts "no config found have you run 'nginx-osx add' ?"
+    end
   end
 
   def tail_error_log
@@ -99,8 +111,8 @@ CMD
     Dir.pwd.downcase.gsub(/^\//, '').gsub(/\.|\/|\s/, '-')
   end
 
-  def current_config_path
-    host ? "/opt/local/etc/nginx/vhosts/#{current_config_name}.conf" : "/opt/local/etc/nginx/configs/#{current_config_name}.conf"
+  def current_config_path(vhost=false)
+    host || vhost ? "/opt/local/etc/nginx/vhosts/#{current_config_name}.conf" : "/opt/local/etc/nginx/configs/#{current_config_name}.conf"
   end
 
   def usage

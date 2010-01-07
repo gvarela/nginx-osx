@@ -1,7 +1,7 @@
 USAGE:
   nginx-osx [cmd]
 
-    install [--passenger]
+    install
       - install nginx via custom macports port file from crigor
     setup
       - setup the basic nginx.conf file and the vhost directories
