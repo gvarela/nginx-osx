@@ -97,7 +97,7 @@ CMD
   end
 
   def current_config_path
-    passenger && host ? "/opt/local/etc/nginx/vhosts/#{current_config_path}.conf" : "/opt/local/etc/nginx/configs/#{current_config_name}.conf"
+    passenger && host ? "/opt/local/etc/nginx/vhosts/#{current_config_name}.conf" : "/opt/local/etc/nginx/configs/#{current_config_name}.conf"
   end
 
   def usage
